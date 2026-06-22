@@ -14,37 +14,35 @@ class Game(models.Model):
         verbose_name = 'Гра'
         verbose_name_plural = 'Ігри'
 
-    def str(self):
+    def __str__(self):
         return self.name
 
 
 class Skin(models.Model):
     RARITY_CHOICES = [
-    # CS2
-    ('consumer',      'Consumer Grade'),
-    ('industrial',    'Industrial Grade'),
-    ('mil_spec',      'Mil-Spec'),
-    ('restricted',    'Restricted'),
-    ('classified',    'Classified'),
-    ('covert',        'Covert'),
-    ('extraordinary', 'Extraordinary'),
-
-    # Dota 2
-    ('uncommon',      'Uncommon'),
-    ('rare',          'Rare'),
-    ('mythical',      'Mythical'),
-    ('legendary',     'Legendary'),
-    ('immortal',      'Immortal'),
-    ('arcana',        'Arcana'),
-    ('ancient',       'Ancient'),
-
-    # Rust
-    ('common',         'Common'),
-    ('rust_uncommon',  'Uncommon'),
-    ('rust_rare',      'Rare'),
-    ('exceptional',    'Exceptional'),
-    ('master_crafted', 'Master Crafted'),
-    ('precious',       'Precious'),
+        # CS2
+        ('consumer',       'Consumer Grade'),
+        ('industrial',     'Industrial Grade'),
+        ('mil_spec',       'Mil-Spec'),
+        ('restricted',     'Restricted'),
+        ('classified',     'Classified'),
+        ('covert',         'Covert'),
+        ('extraordinary',  'Extraordinary'),
+        # Dota 2
+        ('uncommon',       'Uncommon'),
+        ('rare',           'Rare'),
+        ('mythical',       'Mythical'),
+        ('legendary',      'Legendary'),
+        ('immortal',       'Immortal'),
+        ('arcana',         'Arcana'),
+        ('ancient',        'Ancient'),
+        # Rust
+        ('common',         'Common'),
+        ('rust_uncommon',  'Uncommon (Rust)'),
+        ('rust_rare',      'Rare (Rust)'),
+        ('exceptional',    'Exceptional'),
+        ('master_crafted', 'Master Crafted'),
+        ('precious',       'Precious'),
     ]
 
     CONDITION_CHOICES = [
@@ -57,8 +55,8 @@ class Skin(models.Model):
 
     STATUS_CHOICES = [
         ('available', 'Доступний'),
-        ('sold', 'Продано'),
-        ('reserved', 'Зарезервовано'),
+        ('sold',      'Продано'),
+        ('reserved',  'Зарезервовано'),
     ]
 
     game = models.ForeignKey(Game, on_delete=models.CASCADE, related_name='skins')
@@ -81,7 +79,7 @@ class Skin(models.Model):
         verbose_name = 'Скін'
         verbose_name_plural = 'Скіни'
 
-    def str(self):
+    def __str__(self):
         return f'{self.name} ({self.game.name})'
 
     def get_absolute_url(self):
@@ -90,18 +88,26 @@ class Skin(models.Model):
     @property
     def rarity_color(self):
         colors = {
-            'consumer': '#b0c3d9',
-            'industrial': '#5e98d9',
-            'mil_spec': '#4b69ff',
-            'restricted': '#8847ff',
-            'classified': '#d32ce6',
-            'covert': '#eb4b4b',
-            'extraordinary': '#e4ae39',
-            'common': '#b0b0b0',
-            'uncommon': '#4caf50',
-            'rare': '#3399ff',
-            'epic': '#a335ee',
-            'legendary': '#ff8c00',
+            'consumer':       '#b0c3d9',
+            'industrial':     '#5e98d9',
+            'mil_spec':       '#4b69ff',
+            'restricted':     '#8847ff',
+            'classified':     '#d32ce6',
+            'covert':         '#eb4b4b',
+            'extraordinary':  '#e4ae39',
+            'uncommon':       '#4caf50',
+            'rare':           '#3399ff',
+            'mythical':       '#8847ff',
+            'legendary':      '#ff8c00',
+            'immortal':       '#eb4b4b',
+            'arcana':         '#ff4444',
+            'ancient':        '#ffcc00',
+            'common':         '#b0b0b0',
+            'rust_uncommon':  '#4caf50',
+            'rust_rare':      '#3399ff',
+            'exceptional':    '#a335ee',
+            'master_crafted': '#ff8c00',
+            'precious':       '#ff4444',
         }
         return colors.get(self.rarity, '#ffffff')
 
@@ -110,7 +116,7 @@ class Cart(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
 
-    def str(self):
+    def __str__(self):
         return f'Кошик {self.user.username}'
 
     @property
@@ -129,13 +135,13 @@ class CartItem(models.Model):
 
 class Order(models.Model):
     STATUS_CHOICES = [
-        ('pending', 'Очікує'),
-        ('paid', 'Оплачено'),
+        ('pending',   'Очікує'),
+        ('paid',      'Оплачено'),
         ('completed', 'Завершено'),
         ('cancelled', 'Скасовано'),
     ]
 
-buyer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')
+    buyer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')
     created_at = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
@@ -145,7 +151,7 @@ buyer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')
         verbose_name = 'Замовлення'
         verbose_name_plural = 'Замовлення'
 
-    def str(self):
+    def __str__(self):
         return f'Замовлення #{self.pk} — {self.buyer.username}'
 
 
@@ -180,5 +186,5 @@ class UserProfile(models.Model):
         verbose_name = 'Профіль'
         verbose_name_plural = 'Профілі'
 
-    def str(self):
+    def __str__(self):
         return f'Профіль {self.user.username}'
