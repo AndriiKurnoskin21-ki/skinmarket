@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% block title %}Мій Steam інвентар — SkinsMarket{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 2rem 1rem;">
+    <h1 class="page-title" style="margin-bottom:1.5rem">🎮 Мій Steam інвентар</h1>
+
+    <!-- STEAM ID FORM -->
+    <div class="trade-link-card" style="margin-bottom:2rem;">
+        <h3 style="margin-bottom:1rem;">Введи Steam ID щоб побачити свої скіни</h3>
+        <form method="post" style="display:flex; gap:.75rem; flex-wrap:wrap; align-items:flex-end;">
+            {% csrf_token %}
+            <div class="form-group" style="flex:1; margin:0; min-width:250px;">
+                <label class="form-label">Steam ID (17 цифр)</label>
+                <input type="text" name="steam_id" value="{{ steam_id|default:'' }}"
+                    class="form-input" placeholder="76561198XXXXXXXXX">
+                <span class="field-help">
+                    Знайти на <a href="https://steamid.io" target="_blank">steamid.io</a> →
+                    введи нік або посилання → копіюй steamID64
+                </span>
+            </div>
+            <button type="submit" class="btn btn--primary">Завантажити інвентар</button>
+        </form>
+        {% if has_steam_id %}
+        <p style="margin-top:.75rem; font-size:.85rem; color:#3fb950;">
+            ✅ Поточний Steam ID: <strong>{{ steam_id }}</strong>
+        </p>
+        {% endif %}
+    </div>
+
+    {% if not has_steam_id %}
+    <div class="empty-state">
+        <div class="empty-icon">🎮</div>
+        <h3>Введи Steam ID вище</h3>
+        <p>Після цього побачиш всі скіни з CS2, Dota 2 та Rust</p>
+        <p style="color:var(--warning); font-size:.85rem; margin-top:.5rem;">
+            ⚠️ Інвентар Steam має бути публічним:<br>
+            Steam → Налаштування → Приватність → Інвентар → Публічний
+        </p>
+    </div>
+
+    {% elif error %}
+    <div class="empty-state">
+        <div class="empty-icon">⚠️</div>
+        <h3>Не вдалось завантажити інвентар</h3>
+        <p>Перевір що:</p>
+        <ul style="color:var(--text-muted); text-align:left; display:inline-block; margin-top:.5rem;">
+            <li>✅ Steam ID правильний (17 цифр)</li>
+            <li>✅ Інвентар публічний в Steam</li>
+            <li>✅ Є підключення до інтернету</li>
+        </ul>
+    </div>
+
+    {% else %}
+    <!-- INVENTORY TABS -->
+    <div class="game-tabs" style="margin-bottom:2rem;">
+        {% for game_name, items in inventory.items %}
+        <a href="#{{ game_name|slugify }}" class="game-tab">
+            {% if game_name == 'CS2' %}🔫
+            {% elif game_name == 'Dota 2' %}🏆
+            {% elif game_name == 'Rust' %}🪓
+            {% endif %}
+            {{ game_name }}
+            <span style="background:var(--accent);color:#fff;border-radius:10px;padding:.1rem .4rem;font-size:.7rem;margin-left:.25rem;">
+                {{ items|length }}
+            </span>
+        </a>
+        {% endfor %}
+    </div>
+
+    {% for game_name, items in inventory.items %}
+    <section id="{{ game_name|slugify }}" style="margin-bottom:3rem;">
+        <div class="section-header">
+            <h2 class="section-title">
+                {% if game_name == 'CS2' %}🔫{% elif game_name == 'Dota 2' %}🏆{% elif game_name == 'Rust' %}🪓{% endif %}
+                {{ game_name }}
+                <span style="font-size:1rem;color:var(--text-muted);font-weight:400;">({{ items|length }})</span>
+            </h2>
+        </div>
+
+        {% if items %}
+        <div class="skins-grid skins-grid--catalog">
+            {% for item in items %}
+            <div class="skin-card">
+                <div class="skin-card__img-wrap">
+                    <img src="{{ item.image }}" alt="{{ item.name }}" class="skin-card__img"
+                         onerror="this.style.display='none'">
+                    <div class="skin-card__rarity"
+                         style="background:#{{ item.rarity_color }}; opacity:.9;">
+                        {% if item.tradable %}✅ Tradable{% else %}🔒 Locked{% endif %}
+                    </div>
+                </div>
+                <div class="skin-card__body">
+                    <h3 class="skin-card__name" style="font-size:.85rem;">{{ item.name }}</h3>
+                    <span class="skin-card__condition">{{ item.type }}</span>
+                    <div style="margin-top:.75rem; display:flex; flex-direction:column; gap:.4rem;">
+                        {% if item.tradable %}
+                        <a href="{% url 'sell_skin' %}?name={{ item.name|urlencode }}&image_url={{ item.image|urlencode }}"
+                           class="btn btn--primary btn--sm">
+                            💰 Продати
+                        </a>
+                        {% else %}
+                        <span class="btn btn--ghost btn--sm" style="cursor:default;opacity:.5;">
+                            🔒 Не можна продати
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state empty-state--sm">
+            <p>Немає предметів у {{ game_name }}</p>
+        </div>
+        {% endif %}
+    </section>
+    {% endfor %}
+    {% endif %}
+</div>
+{% endblock %}

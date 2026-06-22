@@ -1,0 +1,61 @@
+:root {
+    --dark-bg: #0f0f1a;
+    --card-bg: #1a1a2e;
+}
+
+body {
+    background-color: var(--dark-bg);
+    color: #e0e0e0;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.hero-section {
+    background: linear-gradient(135deg, #0f0f1a 0%, #16213e 50%, #0f3460 100%);
+    border-bottom: 1px solid #ffffff15;
+    min-height: 280px;
+    display: flex;
+    align-items: center;
+}
+
+.card {
+    background-color: var(--card-bg) !important;
+    color: #e0e0e0;
+}
+
+.game-card:hover {
+    transform: translateY(-4px);
+    transition: transform 0.2s ease;
+    box-shadow: 0 8px 24px rgba(0,0,0,.4) !important;
+}
+
+.skin-card:hover {
+    transform: translateY(-2px);
+    transition: transform 0.2s ease;
+    box-shadow: 0 6px 20px rgba(0,0,0,.35) !important;
+}
+
+.navbar-brand { letter-spacing: 1px; }
+
+.form-control, .form-select {
+    background-color: #111128;
+    border-color: #333355;
+    color: #e0e0e0;
+}
+.form-control:focus, .form-select:focus {
+    background-color: #111128;
+    border-color: #ffc107;
+    color: #e0e0e0;
+    box-shadow: 0 0 0 .2rem rgba(255,193,7,.15);
+}
+
+.table { color: #e0e0e0; }
+.table-dark th { background-color: #111128; }
+.table-hover tbody tr:hover { background-color: #222240; }
+
+.nav-tabs .nav-link { color: #aaa; border-color: transparent; }
+.nav-tabs .nav-link.active { background-color: var(--card-bg); border-color: #333355 #333355 var(--card-bg); color: #ffc107; }
+
+.alert-info { background-color: #16213e; border-color: #0d6efd55; color: #90b4e8; }
+.alert-warning { background-color: #2a200a; border-color: #ffc10755; color: #ffc107; }
+
+footer a:hover { color: #ffc107 !important; }

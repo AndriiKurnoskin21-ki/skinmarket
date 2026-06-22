@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% block title %}Імпорт зі Steam — SkinsMarket{% endblock %}
+
+{% block content %}
+<div class="container my-4" style="max-width:600px;">
+    <h2 class="fw-bold mb-1"><i class="bi bi-steam me-2 text-warning"></i>Імпорт зі Steam</h2>
+    <p class="text-muted mb-4">Скіни підтягнуться автоматично з вашого Steam інвентаря</p>
+
+    {% if not steam_profile %}
+    <div class="alert alert-warning">
+        <i class="bi bi-exclamation-triangle me-2"></i>
+        Ваш Steam акаунт не прив'язаний. 
+        <a href="{% url 'social:begin' 'steam' %}">Увійдіть через Steam</a>.
+    </div>
+    {% else %}
+    <!-- Поточний Steam профіль -->
+    <div class="card border-0 shadow-sm p-3 mb-4 d-flex flex-row align-items-center gap-3">
+        {% if steam_profile.avatar_url %}
+        <img src="{{ steam_profile.avatar_url }}" width="56" height="56" class="rounded-circle">
+        {% endif %}
+        <div>
+            <strong>{{ steam_profile.persona_name }}</strong><br>
+            <small class="text-muted">Steam ID: {{ steam_profile.steam_id }}</small>
+        </div>
+        <span class="badge bg-success ms-auto"><i class="bi bi-check-circle me-1"></i>Підключено</span>
+    </div>
+
+    <!-- Вимога: публічний інвентар -->
+    <div class="alert alert-info small mb-4">
+        <i class="bi bi-info-circle me-2"></i>
+        <strong>Важливо:</strong> Ваш Steam інвентар повинен бути <strong>публічним</strong>.
+        <a href="https://store.steampowered.com/account/edit" target="_blank">Налаштування приватності Steam →</a>
+    </div>
+
+    <!-- Форма -->
+    <div class="card border-0 shadow-sm p-4">
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label class="form-label fw-bold">{{ form.game.label }}</label>
+                {{ form.game }}
+                <div class="form-text">Вибери гру, інвентар якої хочеш імпортувати</div>
+            </div>
+            <div class="mb-4">
+                <label class="form-label fw-bold">{{ form.default_price.label }}</label>
+                {{ form.default_price }}
+                <div class="form-text">Ціна за замовчуванням для нових скінів. Після імпорту можна змінити кожен окремо.</div>
+            </div>
+            <button type="submit" class="btn btn-warning w-100">
+                <i class="bi bi-cloud-download me-2"></i>Імпортувати інвентар
+            </button>
+        </form>
+    </div>
+
+    {% if result %}
+    <div class="card border-0 shadow-sm p-3 mt-4">
+        <h6 class="fw-bold mb-3">Результат імпорту:</h6>
+        <ul class="list-unstyled mb-0">
+            <li><i class="bi bi-check-circle text-success me-2"></i>Додано скінів: <strong>{{ result.imported }}</strong></li>
+            <li><i class="bi bi-skip-forward text-muted me-2"></i>Пропущено: <strong>{{ result.skipped }}</strong></li>
+            {% for err in result.errors %}
+            <li><i class="bi bi-x-circle text-danger me-2"></i>{{ err }}</li>
+            {% endfor %}
+        </ul>
+        {% if result.imported %}
+        <a href="{% url 'profile' %}" class="btn btn-outline-warning btn-sm mt-3">Перейти до кабінету →</a>
+        {% endif %}
+    </div>
+    {% endif %}
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+{% block title %}Особистий кабінет — SkinsMarket{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 2rem 1rem;">
+    <div class="profile-header">
+        <div class="profile-avatar">{{ user.username|first|upper }}</div>
+        <div>
+            <h1 class="profile-name">{{ user.username }}</h1>
+            <p style="color: var(--text-muted);">{{ user.email }}</p>
+            {% if user.is_staff %}
+            <span class="badge badge--admin">👑 Адміністратор</span>
+            {% endif %}
+        </div>
+        <div style="margin-left:auto; display:flex; gap:.5rem; flex-wrap:wrap;">
+            <a href="{% url 'steam_inventory' %}" class="btn btn--ghost">🎮 Мій інвентар</a>
+            <a href="{% url 'password_change' %}" class="btn btn--ghost">🔑 Змінити пароль</a>
+        </div>
+    </div>
+
+    <!-- STEAM SETTINGS -->
+    <section class="trade-link-card" style="margin-bottom: 2rem;">
+        <h2 class="section-title" style="margin-bottom:1rem;">🔗 Steam налаштування</h2>
+        <form method="post" class="steam-form">
+            {% csrf_token %}
+            <div class="steam-form-grid">
+                <div class="form-group">
+                    <label class="form-label">{{ profile_form.steam_id.label }}</label>
+                    {{ profile_form.steam_id }}
+                    <span class="field-help">Знайти на <a href="https://steamid.io" target="_blank">steamid.io</a></span>
+                    {% if profile_form.steam_id.errors %}<span class="field-error">{{ profile_form.steam_id.errors }}</span>{% endif %}
+                </div>
+                <div class="form-group">
+                    <label class="form-label">{{ profile_form.steam_trade_url.label }}</label>
+                    {{ profile_form.steam_trade_url }}
+                    <span class="field-help">Steam → Інвентар → Торгувати → Трейд-посилання</span>
+                    {% if profile_form.steam_trade_url.errors %}<span class="field-error">{{ profile_form.steam_trade_url.errors }}</span>{% endif %}
+                </div>
+            </div>
+            <button type="submit" class="btn btn--primary">Зберегти</button>
+            {% if profile.steam_id %}
+            <a href="{% url 'steam_inventory' %}" class="btn btn--ghost" style="margin-left:.5rem;">
+                Переглянути інвентар →
+            </a>
+            {% endif %}
+        </form>
+        {% if profile.steam_id %}
+        <p style="margin-top:.75rem; font-size:.85rem; color:#3fb950;">✅ Steam ID збережено</p>
+        {% else %}
+        <p style="margin-top:.75rem; font-size:.85rem; color:var(--warning);">⚠️ Steam ID не вказано</p>
+        {% endif %}
+    </section>
+
+    <div class="profile-grid">
+        <!-- MY SKINS -->
+        <section class="profile-section">
+            <div class="section-header">
+                <h2 class="section-title">Мої скіни ({{ my_skins.count }})</h2>
+                <a href="{% url 'sell_skin' %}" class="btn btn--primary btn--sm">+ Виставити</a>
+            </div>
+            {% if my_skins %}
+            <div class="skins-grid skins-grid--4">
+                {% for skin in my_skins %}
+                {% include 'skins/_skin_card.html' with skin=skin %}
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state empty-state--sm">
+                <p>Ви ще не виставляли скіни</p>
+                <a href="{% url 'sell_skin' %}" class="btn btn--primary btn--sm">Виставити перший скін</a>
+            </div>
+            {% endif %}
+        </section>
+
+        <!-- ORDERS -->
+        <section class="profile-section">
+            <h2 class="section-title">
+                {% if user.is_staff %}Всі замовлення{% else %}Мої замовлення ({{ my_orders.count }}){% endif %}
+            </h2>
+            {% if my_orders %}
+            <div class="orders-table-wrap">
+                <table class="orders-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Дата</th>
+                            {% if user.is_staff %}<th>Покупець</th>{% endif %}
+                            <th>Скінів</th>
+                            <th>Сума</th>
+                            <th>Статус</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in my_orders %}
+                        <tr>
+                            <td>#{{ order.pk }}</td>
+                            <td>{{ order.created_at|date:"d.m.Y" }}</td>
+                            {% if user.is_staff %}<td>{{ order.buyer.username }}</td>{% endif %}
+                            <td>{{ order.items.count }}</td>
+                            <td>${{ order.total_price }}</td>
+                            <td><span class="status-badge status-{{ order.status }}">{{ order.get_status_display }}</span></td>
+                            <td><a href="{% url 'order_detail' order.pk %}" class="link">Деталі</a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state empty-state--sm">
+                <p>Замовлень ще немає</p>
+                <a href="{% url 'skin_list' %}" class="btn btn--ghost btn--sm">Перейти до каталогу</a>
+            </div>
+            {% endif %}
+        </section>
+    </div>
+</div>
+{% endblock %}

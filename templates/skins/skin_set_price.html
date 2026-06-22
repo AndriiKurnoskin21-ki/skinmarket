@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}Змінити ціну — SkinsMarket{% endblock %}
+
+{% block content %}
+<div class="container my-4" style="max-width:500px;">
+    <h3 class="fw-bold mb-4">Налаштування скіна</h3>
+
+    <div class="card border-0 shadow-sm p-3 mb-4 d-flex flex-row align-items-center gap-3">
+        {% if skin.image_url %}
+        <img src="{{ skin.image_url }}" width="64" height="64" style="object-fit:contain;background:#1a1a2e;border-radius:6px;">
+        {% endif %}
+        <div>
+            <strong>{{ skin.name }}</strong><br>
+            <small class="text-muted">{{ skin.game.name }}</small>
+        </div>
+    </div>
+
+    <div class="alert alert-info small">
+        <i class="bi bi-info-circle me-2"></i>
+        Назва, фото та характеристики скіна підтягуються зі Steam і не редагуються вручну.
+    </div>
+
+    <div class="card border-0 shadow-sm p-4">
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label class="form-label fw-bold">{{ form.price.label }}</label>
+                {{ form.price }}
+            </div>
+            <div class="mb-4 form-check">
+                {{ form.is_listed }}
+                <label class="form-check-label" for="{{ form.is_listed.id_for_label }}">{{ form.is_listed.label }}</label>
+            </div>
+            <div class="d-flex gap-2">
+                <button class="btn btn-warning flex-grow-1">Зберегти</button>
+                <a href="{% url 'profile' %}" class="btn btn-outline-secondary">Скасувати</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
